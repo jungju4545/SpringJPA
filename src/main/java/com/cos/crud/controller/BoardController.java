@@ -43,45 +43,34 @@ public class BoardController {
 
 	@DeleteMapping("board/delete/{id}")
 	public String boardDelete(@PathVariable int id) {
-		//session 있어야 합니다.원래는...
 		mRepo.deleteById(id);
 		return "redirect:/board/list";
 	}
 
 	@GetMapping("/board/writeForm")
 	public String boardWriteForm(HttpSession session) {
-		//인터셉터 처리 AOP
-		User user = (User) session.getAttribute("user");
-		if(user != null) {
 			return "/board/writeForm";
-		}else {
-			
-			return"/user/loginForm";
-		}
 	}
 
 	@PostMapping("board/write") // 데이터가 없는곳에 데이터가 들어갈 때 post
-	public @ResponseBody String boardWrite(Board board, HttpSession session) {// session 있는 이유 : 유저 아니면 못하도록
+	public String boardWrite(Board board, HttpSession session) {// session 있는 이유 : 유저 아니면 못하도록
 		User user = (User) session.getAttribute("user");
-		if(user != null) {
-			board.setUser(user);
-			mRepo.save(board);
-			return Script.href("/board/list");
-		}else {
-			return Script.href("/user/loginForm");
-		}
+		board.setUser(user);
+		mRepo.save(board);
+		return "redirect:/board/list";
+
 	}
 
 	@PostMapping("/board/update/{id}") // 데이터가 있는데 수정이 일어날때
 	public @ResponseBody String boardUpdate(@PathVariable int id, Board board) {
 		mRepo.save(board);
 		return Script.href("/board/list");
-		
+
 	}
 
 	@GetMapping("/board/updateForm/{id}")
 	public String boardUpdateForm(@PathVariable int id, Model model) {
-		//session 있어야 합니다.원래는...
+		// session 있어야 합니다.원래는...
 		Optional<Board> board = mRepo.findById(id);
 		model.addAttribute("board", board.get());
 		return "/board/updateForm";
